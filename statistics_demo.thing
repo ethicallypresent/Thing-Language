@@ -1,0 +1,43 @@
+outsource "statistics.thing".
+
+Now, the demo: each line is checked against Python's own statistics module.
+Create show(label, value),
+    if value is nil, say("{label}: nil"), give nil.
+    say("{label}: {round(value, 6)}")!
+
+List-of a holds [2, 4, 4, 4, 5, 5, 7, 9].
+List-of b holds [1, 2, 3, 4].
+List-of c holds [3, 1, 2].
+List-of d holds [10, 20, 30, 40, 50, 60, 70].
+List-of e holds [1.5, 2.25, 3.125, 9.75, 4.5].
+List-of ties holds [1, 1, 2, 2, 3].
+List-of words holds ["red", "blue", "red", "green", "blue", "red"].
+List-of xs holds [1, 2, 3, 4, 5].
+List-of ys holds [2, 4, 5, 4, 5].
+
+Do show("mean a", Do mean(a)).
+Do show("mean e", Do mean(e)).
+Do show("median a", Do median(a)).
+Do show("median b", Do median(b)).
+Do show("median c", Do median(c)).
+Do show("median d", Do median(d)).
+Do show("mode a", Do mode(a)).
+Do show("mode ties", Do mode(ties)).
+Do show("multimode ties count", Counted(Do multimode(ties))).
+Do show("multimode ties first", Do multimode(ties):0).
+Do show("multimode ties second", Do multimode(ties):1).
+say("mode words: {Do mode(words)}").
+Do show("pvariance a", Do pvariance(a)).
+Do show("variance a", Do variance(a)).
+Do show("pstdev a", Do pstdev(a)).
+Do show("stdev a", Do stdev(a)).
+Do show("stdev e", Do stdev(e)).
+Do show("pstdev d", Do pstdev(d)).
+Do show("covariance", Do covariance(xs, ys)).
+Do show("correlation", Do correlation(xs, ys)).
+Do show("sqrt 2", Do sqrt(2)).
+Do show("sqrt 0.25", Do sqrt(0.25)).
+Do show("sqrt 1000000", Do sqrt(1000000)).
+Do mean([]).
+Do variance([5]).
+Do correlation([1, 1, 1], [1, 2, 3]).

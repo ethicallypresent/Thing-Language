@@ -1,0 +1,83 @@
+Now, a port of the parts of Python's statistics module that fit Thing: mean, median, mode, multimode, variance, stdev, covariance and correlation.
+Now, use it from another program with outsource "statistics.thing", then call each one as Do mean(xs) and so on.
+Next, a built-in square root, a way to raise an error, and number keys for a Book would remove the workarounds below.
+
+Create sqrt(v),
+    Now, Newton's method, since Thing has no square root yet.
+    if v is smaller-than 0, give nil.
+    if v is 0, give 0.
+    A guess holds v.
+    for every step in range(80), guess holds (guess + v / guess) / 2.
+    give guess!
+
+Create mean(xs),
+    if Counted(xs) is 0, say("mean needs at least one number"), give nil.
+    give Total(xs) / Counted(xs)!
+
+Create median(xs),
+    if Counted(xs) is 0, say("median needs at least one number"), give nil.
+    A ordered holds Order(xs).
+    A n holds Counted(ordered).
+    if n % 2 is 1, give ordered[(n - 1) / 2].
+    give (ordered[n / 2 - 1] + ordered[n / 2]) / 2!
+
+Create counts_of(xs),
+    Now, a Book is named with words, so each value is counted under its text.
+    Book-of counts.
+    for every x in xs, A key holds "{x}", if key in counts, counts[key] holds counts[key] + 1, if-not counts[key] holds 1.
+    give counts!
+
+Create multimode(xs),
+    Now, every value that appears most often, in the order it first appears.
+    List-of out.
+    if Counted(xs) is 0, give out.
+    A counts holds Do counts_of(xs).
+    A best holds Bigger(counts).
+    Book-of seen.
+    for every x in xs, A key holds "{x}", if counts[key] is best and not key in seen, append(out, x), seen[key] holds Yes.
+    give out!
+
+Create mode(xs),
+    if Counted(xs) is 0, say("mode needs at least one value"), give nil.
+    give Do multimode(xs):0!
+
+Create pvariance(xs),
+    if Counted(xs) is 0, say("pvariance needs at least one number"), give nil.
+    A m holds Do mean(xs).
+    A total holds 0.
+    for every x in xs, total holds total + (x - m) * (x - m).
+    give total / Counted(xs)!
+
+Create variance(xs),
+    if Counted(xs) is smaller-than 2, say("variance needs at least two numbers"), give nil.
+    A m holds Do mean(xs).
+    A total holds 0.
+    for every x in xs, total holds total + (x - m) * (x - m).
+    give total / (Counted(xs) - 1)!
+
+Create pstdev(xs),
+    A v holds Do pvariance(xs).
+    if v is nil, give nil.
+    give Do sqrt(v)!
+
+Create stdev(xs),
+    A v holds Do variance(xs).
+    if v is nil, give nil.
+    give Do sqrt(v)!
+
+Create covariance(xs, ys),
+    if Counted(xs) is not Counted(ys), say("covariance needs lists of the same length"), give nil.
+    if Counted(xs) is smaller-than 2, say("covariance needs at least two pairs"), give nil.
+    A mx holds Do mean(xs).
+    A my holds Do mean(ys).
+    A total holds 0.
+    for every i in range(Counted(xs)), total holds total + (xs[i - 1] - mx) * (ys[i - 1] - my).
+    give total / (Counted(xs) - 1)!
+
+Create correlation(xs, ys),
+    A cov holds Do covariance(xs, ys).
+    if cov is nil, give nil.
+    A sx holds Do stdev(xs).
+    A sy holds Do stdev(ys).
+    if sx is 0 or sy is 0, say("correlation needs numbers that are not all the same"), give nil.
+    give cov / (sx * sy)!

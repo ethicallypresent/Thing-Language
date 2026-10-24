@@ -1,0 +1,4 @@
+outsource "json.thing".
+
+Now, the demo: each line of json_cases.txt is parsed, and checked against Python's own json module.
+for every line in lines("json_cases.txt"), A outcome holds Do parse(line), if outcome:0 is Yes, say(outcome:1), if-not say("error").

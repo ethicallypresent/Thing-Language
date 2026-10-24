@@ -1,0 +1,26 @@
+{"name": "Ann", "age": 30, "tags": ["a", "b"], "ok": true, "none": null}
+[1, 2.5, -3, 1e3, 2E-2, 0, -0.5, 10]
+"a \"quoted\" word\nwith newline\ttab and a backslash \\ and slash \/"
+{}
+[]
+[[], {}, [[1]], {"a": {"b": {"c": [1, {"d": null}]}}}]
+   [ 1 ,	 2 ]  
+true
+false
+null
+42
+-7
+"plain"
+{"a": 1, "a": 2, "b": [true, false, null]}
+[1, 2
+{"a" 1}
+[1,]
+{"a": 1,}
+
+01
+.5
+1.
+tru
+"unterminated
+[1] x
+{1: 2}

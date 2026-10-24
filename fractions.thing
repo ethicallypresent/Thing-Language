@@ -1,0 +1,64 @@
+Now, a port of Python's fractions module: exact fractions that are always kept in lowest terms with a positive bottom.
+Now, use it from another program with outsource "fractions.thing", make one with Do Fraction(top, bottom), and read the answer with Do text() on f.
+Next, a way to raise an error would replace the messages printed below for a zero bottom and a zero reciprocal.
+Next, operators like + and < working on objects would let a fraction be added with a plus sign, as in Python.
+
+Create absolute(x),
+    if x is smaller-than 0, give 0 - x.
+    give x!
+
+Create gcd(a, b),
+    Now, Euclid's method by recursion, since Thing has no while loop.
+    if b is 0, give a.
+    give Do gcd(b, a % b)!
+
+Create norm_num(top, bottom),
+    if bottom is 0, say("a fraction cannot have a bottom of zero"), give nil.
+    A sign holds 1.
+    if bottom is smaller-than 0, sign holds -1.
+    give sign * top / Do gcd(Do absolute(top), Do absolute(bottom))!
+
+Create norm_den(top, bottom),
+    if bottom is 0, give nil.
+    give Do absolute(bottom) / Do gcd(Do absolute(top), Do absolute(bottom))!
+
+Create fraction_from(t),
+    Now, "3/7" and "5" both work, like Python's Fraction("3/7").
+    A parts holds split(t, "/").
+    if Counted(parts) is 1, give Do Fraction(number(parts:0), 1).
+    give Do Fraction(number(parts:0), number(parts:1))!
+
+template Fraction(top, bottom),
+    A num holds Do norm_num(top, bottom).
+    A den holds Do norm_den(top, bottom).
+
+    Create add(other), give Do Fraction(num * den of other + num of other * den, den * den of other)!
+    Create subtract(other), give Do Fraction(num * den of other - num of other * den, den * den of other)!
+    Create multiply(other), give Do Fraction(num * num of other, den * den of other)!
+    Create divide(other),
+        if num of other is 0, say("cannot divide by a fraction that is zero"), give nil.
+        give Do Fraction(num * den of other, den * num of other)!
+    Create negate(), give Do Fraction(0 - num, den)!
+    Create reciprocal(),
+        if num is 0, say("zero has no reciprocal"), give nil.
+        give Do Fraction(den, num)!
+    Create compare(other),
+        Now, gives -1, 0 or 1, by comparing the cross products.
+        A left holds num * den of other.
+        A right holds num of other * den.
+        if left is smaller-than right, give -1.
+        if left is bigger-than right, give 1.
+        give 0!
+    Create power(n),
+        if n is 0, give Do Fraction(1, 1).
+        if n is smaller-than 0, give Do power(0 - n) on Do reciprocal() on self.
+        A result holds Do Fraction(1, 1).
+        for every step in range(n), result holds Do multiply(self) on result.
+        give result!
+    Create floored(), give sink(num / den)!
+    Create ceiled(), give fly(num / den)!
+    Create to_decimal(), give num / den!
+    Create text(),
+        if den is 1, give "{num}".
+        give "{num}/{den}"!
+!

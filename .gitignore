@@ -1,0 +1,11 @@
+# the built interpreter, and programs built with it
+/thing
+
+# files the example programs write when they run
+grades.csv
+people.csv
+out.txt
+
+# editor leftovers
+*.swp
+*.kate-swp

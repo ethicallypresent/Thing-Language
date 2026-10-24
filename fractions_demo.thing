@@ -1,0 +1,47 @@
+outsource "fractions.thing".
+
+Now, the demo: each line is checked against Python's own fractions module.
+Create show(label, f), say("{label}: {Do text() on f}")!
+Create show_number(label, v), say("{label}: {round(v, 6)}")!
+
+A a holds Do Fraction(1, 3).
+A b holds Do Fraction(1, 6).
+Do show("6/8", Do Fraction(6, 8)).
+Do show("-6/8", Do Fraction(-6, 8)).
+Do show("6/-8", Do Fraction(6, -8)).
+Do show("0/5", Do Fraction(0, 5)).
+Do show("10/5", Do Fraction(10, 5)).
+Do show("-10/-5", Do Fraction(-10, -5)).
+Do show("1/3 + 1/6", Do add(b) on a).
+Do show("1/3 - 1/6", Do subtract(b) on a).
+Do show("1/3 * 1/6", Do multiply(b) on a).
+Do show("1/3 / 1/6", Do divide(b) on a).
+Do show("-(1/3)", Do negate() on a).
+Do show("1/(1/3)", Do reciprocal() on a).
+A two_thirds holds Do Fraction(2, 3).
+Do show("(2/3)^3", Do power(3) on two_thirds).
+Do show("(2/3)^0", Do power(0) on two_thirds).
+Do show("(2/3)^-2", Do power(-2) on two_thirds).
+Do show_number("compare 1/3 1/6", Do compare(b) on a).
+Do show_number("compare 1/6 1/3", Do compare(a) on b).
+Do show_number("compare 1/3 2/6", Do compare(Do Fraction(2, 6)) on a).
+say("1/3 equals 2/6: {a is Do Fraction(2, 6)}").
+say("1/3 equals 1/6: {a is b}").
+Do show_number("floor 7/2", Do floored() on Do Fraction(7, 2)).
+Do show_number("floor -7/2", Do floored() on Do Fraction(-7, 2)).
+Do show_number("ceiling 7/2", Do ceiled() on Do Fraction(7, 2)).
+Do show_number("ceiling -7/2", Do ceiled() on Do Fraction(-7, 2)).
+Do show_number("decimal 1/3", Do to_decimal() on a).
+Do show("from text 3/7", Do fraction_from("3/7")).
+Do show("from text -4/6", Do fraction_from("-4/6")).
+Do show("from text 5", Do fraction_from("5")).
+A total holds Do Fraction(0, 1).
+for every k in range(10), total holds Do add(Do Fraction(1, k)) on total.
+Do show("harmonic sum to 10", total).
+A product holds Do Fraction(1, 1).
+for every k in range(2, 8), product holds Do multiply(Do Fraction(k - 1, k)) on product.
+Do show("telescoping product 2..8", product).
+say("numerator of 3/4: {num of Do Fraction(6, 8)}").
+say("denominator of 3/4: {den of Do Fraction(6, 8)}").
+Do Fraction(1, 0).
+Do reciprocal() on Do Fraction(0, 3).

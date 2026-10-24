@@ -1,0 +1,77 @@
+Now, a small file of marks is written so the report has something to read.
+write "name,score" in "grades.csv".
+add "ann,82" in "grades.csv".
+add "bob,95" in "grades.csv".
+add "cy,67" in "grades.csv".
+add "dee,95" in "grades.csv".
+add "eli,74" in "grades.csv".
+add "ann,90" in "grades.csv".
+add "bob,88" in "grades.csv".
+add "cy,71" in "grades.csv".
+
+Create average(xs),
+    give Total(xs) / Counted(xs)!
+
+Create with_mark(book, who, mark),
+    Now, a Do cannot change data outside it, so this copies the Book and gives the new one back.
+    A marks holds [mark].
+    if who in book, marks holds book[who].
+    if who in book, append(marks, mark).
+    An out holds book.
+    out[who] holds marks.
+    give out!
+
+Create load_scores(file),
+    Book-of scores.
+    for every row in lines(file), A p holds split(row, ","), if p:0 is not "name", scores holds Do with_mark(scores, p:0, number(p:1)).
+    give scores!
+
+Create averages(scores),
+    Book-of out.
+    for every who in scores, out[who] holds round(Do average(scores[who]), 1).
+    give out!
+
+Create best(avgs, skip),
+    Now, finding the top student who is not ranked yet.
+    A top holds nil.
+    A top_score holds -1.
+    for every who in avgs, if not who in skip and avgs[who] is bigger-than top_score, top holds who, top_score holds avgs[who].
+    give top!
+
+Create print_ranking(avgs),
+    Now, ranking with a loop that runs once for every student.
+    List-of used.
+    for every place in range(Counted(avgs)), A who holds Do best(avgs, used), append(used, who), say("{place}. {who}  {avgs[who]}").
+    give nil!
+
+Create summary(scores, avgs),
+    Book-of out.
+    List-of values.
+    A marks holds 0.
+    for every who in avgs, append(values, avgs[who]), marks holds marks + Counted(scores[who]).
+    List-of order holds Order(values, backward).
+    out["students"] holds Counted(avgs).
+    out["marks entered"] holds marks.
+    out["class average"] holds round(Total(avgs) / Counted(avgs), 1).
+    out["highest"] holds Bigger(avgs).
+    out["lowest"] holds Smaller(avgs).
+    out["all averages"] holds order.
+    give out!
+
+Create report(file),
+    if not exists(file), say("There is no file called {file}"), give nil.
+    A scores holds Do load_scores(file).
+    An avgs holds Do averages(scores).
+    say("Report for {file}").
+    say("--------------------").
+    Do print_ranking(avgs).
+    say("--------------------").
+    A stats holds Do summary(scores, avgs).
+    for every k in stats, say("{k}: {stats[k]}").
+    give stats!
+
+Now, the report runs on the file above, and then on a file that is missing.
+Next, a way to sort a Book by its values would replace best and print_ranking.
+A result holds Do report("grades.csv").
+say(Counted(result)).
+Do report("missing.csv").

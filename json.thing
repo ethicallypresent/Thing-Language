@@ -1,0 +1,163 @@
+Now, a port of the decoding half of Python's json module: Do loads(text) turns JSON text into lists, Books, words, numbers, Yes/No and nil.
+Now, Do parse(text) gives [Yes, value] or [No, message] instead of printing, so a caller can tell a JSON null from a mistake.
+Next, dumps (turning a value back into JSON text) needs a way to ask what kind of value something is.
+Next, \uXXXX escapes need a way to make a character from its number, and a very deep nesting stops at the 200 level limit on function calls.
+
+Create is_space(c), give c in " \n\t\r"!
+
+Create num_step(state, ch),
+    Now, a small state machine for JSON's number rule: an optional minus, then 0 or a digit 1-9 followed by digits, then an optional point and digits, then an optional e or E with an optional sign and digits.
+    Now, states: 0 start, 1 after -, 2 after a leading 0, 3 in the whole part, 4 after the point, 5 in the fraction, 6 after e, 7 after the sign of the exponent, 8 in the exponent.
+    if state is -1, give -1.
+    A digit holds ch in "0123456789".
+    if state is 0 and ch is "-", give 1.
+    if state is 0 and ch is "0", give 2.
+    if state is 0 and digit and ch is not "0", give 3.
+    if state is 1 and ch is "0", give 2.
+    if state is 1 and digit and ch is not "0", give 3.
+    if state is 3 and digit, give 3.
+    if (state is 2 or state is 3) and ch is ".", give 4.
+    if state is 4 and digit, give 5.
+    if state is 5 and digit, give 5.
+    if (state is 2 or state is 3 or state is 5) and (ch is "e" or ch is "E"), give 6.
+    if state is 6 and (ch is "+" or ch is "-"), give 7.
+    if (state is 6 or state is 7) and digit, give 8.
+    if state is 8 and digit, give 8.
+    give -1!
+
+Create is_json_number(raw),
+    A state holds 0.
+    for every ch in raw, state holds Do num_step(state, ch).
+    if state is 2 or state is 3 or state is 5 or state is 8, give Yes.
+    give No!
+
+template Parser(text),
+    A text holds text.
+    A pos holds 0.
+    A problem holds "".
+    A buf holds "".
+    A ended holds No.
+
+    Create fail(message),
+        Now, only the first mistake is kept, since the later ones are just fallout from it.
+        if problem is "", problem holds "{message} at position {pos}".
+        give nil!
+
+    Create skip(),
+        for every step in range(Counted(text) - pos), if pos is smaller-than Counted(text) and Do is_space(text:pos), pos holds pos + 1.
+        give nil!
+
+    Create expect(ch),
+        Do skip() on self.
+        if pos is smaller-than Counted(text) and text:pos is ch, pos holds pos + 1, give nil.
+        give Do fail("expected {ch}") on self!
+
+    Create separator(closing),
+        Do skip() on self.
+        if pos is Counted(text), give Do fail("unexpected end of text") on self.
+        A c holds text:pos.
+        if c is ",", pos holds pos + 1, give ",".
+        if c is closing, pos holds pos + 1, give closing.
+        give Do fail("expected a comma or {closing}") on self!
+
+    Create read_value(),
+        Do skip() on self.
+        if pos is Counted(text), give Do fail("unexpected end of text") on self.
+        A c holds text:pos.
+        if c is "{{", give Do read_object() on self.
+        if c is "[", give Do read_array() on self.
+        if c is "\"", give Do read_string() on self.
+        if c in "tfn", give Do read_word() on self.
+        give Do read_number() on self!
+
+    Create read_member(),
+        Do skip() on self.
+        A key holds Do read_string() on self.
+        Do expect(":") on self.
+        A val holds Do read_value() on self.
+        give [key, val]!
+
+    Create read_object(),
+        Book-of out.
+        A done holds No.
+        pos holds pos + 1.
+        Do skip() on self.
+        if pos is smaller-than Counted(text) and text:pos is "}", pos holds pos + 1, done holds Yes.
+        for every step in range(Counted(text) - pos), if done is No and problem is "", A pair holds Do read_member() on self, if problem is "", out[pair:0] holds pair:1, A sep holds Do separator("}") on self, if sep is "}", done holds Yes.
+        if done is No, give Do fail("unterminated object") on self.
+        give out!
+
+    Create read_array(),
+        List-of out.
+        A done holds No.
+        pos holds pos + 1.
+        Do skip() on self.
+        if pos is smaller-than Counted(text) and text:pos is "]", pos holds pos + 1, done holds Yes.
+        for every step in range(Counted(text) - pos), if done is No and problem is "", A item holds Do read_value() on self, append(out, item), A sep holds Do separator("]") on self, if sep is "]", done holds Yes.
+        if done is No, give Do fail("unterminated array") on self.
+        give out!
+
+    Create read_string(),
+        if pos is Counted(text) or text:pos is not "\"", give Do fail("expected a string") on self.
+        pos holds pos + 1.
+        buf holds "".
+        ended holds No.
+        for every step in range(Counted(text) - pos), Do string_step() on self.
+        if ended is No, give Do fail("unterminated string") on self.
+        give buf!
+
+    Create string_step(),
+        Now, takes one character, or one escape like \n, and adds what it means to the text being built.
+        if ended is Yes or problem is not "", give nil.
+        if pos is Counted(text), give nil.
+        A c holds text:pos.
+        pos holds pos + 1.
+        if c is "\"", ended holds Yes, give nil.
+        if c is not "\\", buf holds buf plus c, give nil.
+        if pos is Counted(text), give Do fail("unterminated escape") on self.
+        A e holds text:pos.
+        pos holds pos + 1.
+        if e is "n", buf holds buf plus "\n", give nil.
+        if e is "t", buf holds buf plus "\t", give nil.
+        if e is "r", buf holds buf plus "\r", give nil.
+        if e is "\"", buf holds buf plus "\"", give nil.
+        if e is "\\", buf holds buf plus "\\", give nil.
+        if e is "/", buf holds buf plus "/", give nil.
+        give Do fail("unsupported escape \\{e}") on self!
+
+    Create read_word(),
+        buf holds "".
+        for every step in range(6), Do word_step() on self.
+        if buf is "true", give Yes.
+        if buf is "false", give No.
+        if buf is "null", give nil.
+        give Do fail("unexpected word") on self!
+
+    Create word_step(),
+        if pos is smaller-than Counted(text) and text:pos in "abcdefghijklmnopqrstuvwxyz", buf holds buf plus text:pos, pos holds pos + 1.
+        give nil!
+
+    Create read_number(),
+        buf holds "".
+        for every step in range(40), Do number_step() on self.
+        if buf is "", give Do fail("unexpected character") on self.
+        if Do is_json_number(buf) is No, give Do fail("bad number") on self.
+        give number(buf)!
+
+    Create number_step(),
+        if pos is smaller-than Counted(text) and text:pos in "0123456789+-.eE", buf holds buf plus text:pos, pos holds pos + 1.
+        give nil!
+!
+
+Create parse(text),
+    A p holds Do Parser(text).
+    A result holds Do read_value() on p.
+    Do skip() on p.
+    if problem of p is "" and pos of p is not Counted(text), Do fail("extra data") on p.
+    if problem of p is not "", give [No, problem of p].
+    give [Yes, result]!
+
+Create loads(text),
+    A outcome holds Do parse(text).
+    if outcome:0 is No, say("json error: {outcome:1}"), give nil.
+    give outcome:1!
